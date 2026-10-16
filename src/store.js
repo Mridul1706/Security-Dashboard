@@ -47,4 +47,17 @@ export const useDashboardStore = create((set) => ({
           : category,
       ),
     })),
+  setWidgetVisibility: (categoryId, widgetId, visible) =>
+    set((state) => ({
+      categories: state.categories.map((category) =>
+          category.id === categoryId
+            ? {
+                ...category,
+                widgets: category.widgets.map((widget) =>
+                  widget.id === widgetId ? { ...widget, visible } : widget,
+                ),
+              }
+            : category,
+      ),
+    })),
 }))

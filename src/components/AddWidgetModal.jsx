@@ -19,7 +19,14 @@ import {
 
 const tabs = ['CSPM', 'CWPP', 'Registry', 'Tickets']
 
-export default function AddWidgetModal({ categories, onClose, onAdd, onRemove, onAddCategory }) {
+export default function AddWidgetModal({
+  categories,
+  onClose,
+  onAdd,
+  onRemove,
+  onSetVisibility,
+  onAddCategory,
+}) {
   const [activeTab, setActiveTab] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState('cspm')
   const [name, setName] = useState('')
@@ -32,8 +39,23 @@ export default function AddWidgetModal({ categories, onClose, onAdd, onRemove, o
   const pendingWidgetIds = pendingWidgets.map((widget) => widget.id).join(',')
 
   useEffect(() => {
-    setSelectedWidgets(pendingWidgets.map((widget) => widget.id))
+    setSelectedWidgets(
+      pendingWidgets
+        .filter((widget) => widget.visible !== false)
+        .map((widget) => widget.id),
+    )
   }, [selectedCategory, pendingWidgetIds])
+
+  function saveVisibility() {
+    pendingWidgets.forEach((widget) => {
+      onSetVisibility(
+        selectedCategory,
+        widget.id,
+        selectedWidgets.includes(widget.id),
+      )
+    })
+    onClose()
+  }
 
   function isWidgetSelected(widgetId) {
     return selectedWidgets.includes(widgetId)
@@ -189,7 +211,7 @@ export default function AddWidgetModal({ categories, onClose, onAdd, onRemove, o
       </DialogContent>
       <DialogActions className="!border-t !border-slate-200 !px-6 !py-4">
         <Button onClick={onClose} variant="outlined" className="!text-xs">Cancel</Button>
-        <Button onClick={onClose} variant="contained" className="!bg-indigo-950 !text-xs hover:!bg-indigo-800">
+        <Button onClick={saveVisibility} variant="contained" className="!bg-indigo-950 !text-xs hover:!bg-indigo-800">
           Done
         </Button>
       </DialogActions>

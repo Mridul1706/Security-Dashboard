@@ -15,7 +15,14 @@ import WidgetCard from './components/WidgetCard'
 import { useDashboardStore } from './store'
 
 export default function App() {
-  const { categories, addCategory, addWidget, removeWidget, removeCategory } = useDashboardStore()
+  const {
+    categories,
+    addCategory,
+    addWidget,
+    removeWidget,
+    removeCategory,
+    setWidgetVisibility,
+  } = useDashboardStore()
   const [search, setSearch] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [range, setRange] = useState('Last 2 days')
@@ -26,7 +33,11 @@ export default function App() {
     return categories
       .map((category) => ({
         ...category,
-        widgets: category.widgets.filter((widget) => widget.name.toLowerCase().includes(query)),
+        widgets: category.widgets.filter(
+          (widget) =>
+            widget.visible !== false &&
+            widget.name.toLowerCase().includes(query),
+        ),
       }))
       .filter((category) => category.widgets.length > 0 || category.name.toLowerCase().includes(query))
   }, [categories, search])
@@ -87,11 +98,17 @@ export default function App() {
           <section className="mb-8" key={category.id}>
             <div className="mb-3 flex items-center gap-3">
               <Typography variant="h6" className="!text-sm !font-bold !text-slate-700">{category.name}</Typography>
-              <span className="text-[11px] text-slate-400">{category.widgets.length} widgets</span>
+              <span className="text-[11px] text-slate-400">
+                {category.widgets.filter((widget) => widget.visible !== false).length} widgets
+              </span>
               {category.isCustom && <Button color="error" size="small" onClick={() => deleteCategory(category)} className="!ml-auto !text-[10px]">Delete category</Button>}
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {category.widgets.map((widget) => <WidgetCard key={widget.id} widget={widget} categoryId={category.id} onRemove={removeWidget} />)}
+              {category.widgets
+                .filter((widget) => widget.visible !== false)
+                .map((widget) => (
+                  <WidgetCard key={widget.id} widget={widget} categoryId={category.id} onRemove={removeWidget} />
+                ))}
               <Paper
                 component="button"
                 onClick={() => setIsModalOpen(true)}
@@ -106,7 +123,16 @@ export default function App() {
           <div className="py-16 text-center text-slate-400"><SlidersHorizontal className="mx-auto text-indigo-500" size={22} /><h2 className="mt-3 text-lg font-bold text-slate-700">No widgets found</h2><p className="text-xs">Try a different search term.</p></div>
         )}
       </main>
-      {isModalOpen && <AddWidgetModal categories={categories} onClose={() => setIsModalOpen(false)} onAdd={addWidget} onRemove={removeWidget} onAddCategory={createCategory} />}
+      {isModalOpen && (
+        <AddWidgetModal
+          categories={categories}
+          onClose={() => setIsModalOpen(false)}
+          onAdd={addWidget}
+          onRemove={removeWidget}
+          onSetVisibility={setWidgetVisibility}
+          onAddCategory={createCategory}
+        />
+      )}
     </div>
   )
 }
