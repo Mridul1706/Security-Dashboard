@@ -29,10 +29,11 @@ export default function AddWidgetModal({ categories, onClose, onAdd, onRemove, o
 
   const category = categories.find((item) => item.id === selectedCategory)
   const pendingWidgets = category?.widgets || []
+  const pendingWidgetIds = pendingWidgets.map((widget) => widget.id).join(',')
 
   useEffect(() => {
     setSelectedWidgets(pendingWidgets.map((widget) => widget.id))
-  }, [selectedCategory, categories])
+  }, [selectedCategory, pendingWidgetIds])
 
   function isWidgetSelected(widgetId) {
     return selectedWidgets.includes(widgetId)
@@ -158,24 +159,26 @@ export default function AddWidgetModal({ categories, onClose, onAdd, onRemove, o
                 className="my-2 flex items-center justify-between rounded border border-slate-200 px-3 py-1"
               >
                 <FormControlLabel
-                  className="!m-0"
+                  className="!m-0 !min-w-0 !flex-1"
                   control={
                     <Checkbox
                       size="small"
                       checked={isWidgetSelected(widget.id)}
                       onChange={() => toggleWidget(widget.id)}
+                      inputProps={{ 'aria-label': `Select ${widget.name}` }}
                     />
                   }
-                  label={<span className="text-[11px] text-slate-600">{widget.name}</span>}
+                  label={<span className="truncate text-[11px] text-slate-600">{widget.name}</span>}
                 />
                 <Button
                   size="small"
                   color="error"
+                  variant="outlined"
                   onClick={() => {
                     onRemove(selectedCategory, widget.id)
                     setSelectedWidgets((current) => current.filter((id) => id !== widget.id))
                   }}
-                  className="!text-[10px]"
+                  className="!ml-2 !min-w-[68px] !shrink-0 !text-[10px]"
                 >
                   Delete
                 </Button>
