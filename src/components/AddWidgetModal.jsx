@@ -1,13 +1,11 @@
 import React, { useState } from 'react'
 import {
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -136,18 +134,20 @@ export default function AddWidgetModal({ categories, onClose, onAdd, onRemove, o
               {category?.name} widgets
             </Typography>
             {pendingWidgets.map((widget) => (
-              <FormControlLabel
+              <div
                 key={widget.id}
-                className="!my-1 !mr-0 !block !rounded !border !border-slate-200 !px-2"
-                control={
-                  <Checkbox
-                    size="small"
-                    checked
-                    onChange={() => onRemove(selectedCategory, widget.id)}
-                  />
-                }
-                label={<span className="text-[11px] text-slate-600">{widget.name}</span>}
-              />
+                className="my-2 flex items-center justify-between rounded border border-slate-200 px-3 py-1"
+              >
+                <span className="text-[11px] text-slate-600">{widget.name}</span>
+                <Button
+                  size="small"
+                  color="error"
+                  onClick={() => onRemove(selectedCategory, widget.id)}
+                  className="!text-[10px]"
+                >
+                  Delete
+                </Button>
+              </div>
             ))}
           </div>
         </div>
