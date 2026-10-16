@@ -6,18 +6,19 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
   FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
   Tab,
   Tabs,
   TextField,
   Typography,
 } from '@mui/material'
 
-const tabs = ['CSPM', 'CWPP', 'Registry', 'Tickets']
+const defaultTabNames = {
+  cspm: 'CSPM',
+  cwpp: 'CWPP',
+  registry: 'Registry',
+  ticket: 'Tickets',
+}
 
 export default function AddWidgetModal({
   categories,
@@ -27,7 +28,6 @@ export default function AddWidgetModal({
   onSetVisibility,
   onAddCategory,
 }) {
-  const [activeTab, setActiveTab] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState('cspm')
   const [name, setName] = useState('')
   const [text, setText] = useState('')
@@ -37,6 +37,10 @@ export default function AddWidgetModal({
   const category = categories.find((item) => item.id === selectedCategory)
   const pendingWidgets = category?.widgets || []
   const pendingWidgetIds = pendingWidgets.map((widget) => widget.id).join(',')
+  const activeTab = Math.max(
+    categories.findIndex((item) => item.id === selectedCategory),
+    0,
+  )
 
   useEffect(() => {
     setSelectedWidgets(
@@ -105,25 +109,21 @@ export default function AddWidgetModal({
         </Typography>
         <Tabs
           value={activeTab}
-          onChange={(_, value) => setActiveTab(value)}
+          onChange={(_, value) => setSelectedCategory(categories[value].id)}
+          variant="scrollable"
+          scrollButtons="auto"
           className="!mb-5 !border-b !border-slate-200"
         >
-          {tabs.map((tab) => <Tab key={tab} label={tab} className="!min-w-0 !px-3 !text-xs" />)}
+          {categories.map((item) => (
+            <Tab
+              key={item.id}
+              label={defaultTabNames[item.id] || item.name}
+              className="!min-w-0 !px-3 !text-xs"
+            />
+          ))}
         </Tabs>
 
         <div className="space-y-4">
-          <FormControl fullWidth size="small">
-            <InputLabel id="category-label">Category</InputLabel>
-            <Select
-              labelId="category-label"
-              value={selectedCategory}
-              label="Category"
-              onChange={(event) => setSelectedCategory(event.target.value)}
-            >
-              {categories.map((item) => <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>)}
-            </Select>
-          </FormControl>
-
           <form className="flex gap-2" onSubmit={createCategory}>
             <TextField
               fullWidth
