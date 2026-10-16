@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -23,9 +25,26 @@ export default function AddWidgetModal({ categories, onClose, onAdd, onRemove, o
   const [name, setName] = useState('')
   const [text, setText] = useState('')
   const [categoryName, setCategoryName] = useState('')
+  const [selectedWidgets, setSelectedWidgets] = useState([])
 
   const category = categories.find((item) => item.id === selectedCategory)
   const pendingWidgets = category?.widgets || []
+
+  useEffect(() => {
+    setSelectedWidgets(pendingWidgets.map((widget) => widget.id))
+  }, [selectedCategory, categories])
+
+  function isWidgetSelected(widgetId) {
+    return selectedWidgets.includes(widgetId)
+  }
+
+  function toggleWidget(widgetId) {
+    setSelectedWidgets((current) =>
+      current.includes(widgetId)
+        ? current.filter((id) => id !== widgetId)
+        : [...current, widgetId],
+    )
+  }
 
   function submit(event) {
     event.preventDefault()
@@ -138,11 +157,24 @@ export default function AddWidgetModal({ categories, onClose, onAdd, onRemove, o
                 key={widget.id}
                 className="my-2 flex items-center justify-between rounded border border-slate-200 px-3 py-1"
               >
-                <span className="text-[11px] text-slate-600">{widget.name}</span>
+                <FormControlLabel
+                  className="!m-0"
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={isWidgetSelected(widget.id)}
+                      onChange={() => toggleWidget(widget.id)}
+                    />
+                  }
+                  label={<span className="text-[11px] text-slate-600">{widget.name}</span>}
+                />
                 <Button
                   size="small"
                   color="error"
-                  onClick={() => onRemove(selectedCategory, widget.id)}
+                  onClick={() => {
+                    onRemove(selectedCategory, widget.id)
+                    setSelectedWidgets((current) => current.filter((id) => id !== widget.id))
+                  }}
                   className="!text-[10px]"
                 >
                   Delete
